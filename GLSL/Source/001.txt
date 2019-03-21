@@ -1,0 +1,26 @@
+//ハート
+
+precision mediump float;
+
+uniform float time;
+uniform vec2  mouse;
+uniform vec2  resolution;
+
+void main(void){
+  vec2 m = vec2(mouse.x * 2.0 - 1.0, -mouse.y * 2.0 + 1.0);
+  vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);
+  p.x = length(m.x-p.x);
+  //p.y = length(m.y-p.y);
+
+  p.x = length(p.x);
+  p.y *= 1.5;
+  p.y += 0.2 - m.y;
+  float a = p.x*p.x + pow((p.y-pow(p.x,2.0/3.0)),2.0);
+  float c;
+  if(a >= 0.9 * sin(time) && a <= 1.1 * sin(time)){
+    c = 1.0;
+  }else{
+    c = 0.0;
+  }
+  gl_FragColor = vec4(vec3(c), 1.0);
+}
