@@ -16,7 +16,7 @@
 // ============================================================================
 
 // global
-var c, cw, ch, mx, my, gl, run, eCheck;
+var c, cw, ch, mx, my, gl, run, eCheck,size;
 var startTime;
 var time = 0.0;
 var tempTime = 0.0;
@@ -29,10 +29,12 @@ window.onload = function(){
 	c = document.getElementById('canvas');
 
 	// canvas サイズ
-	cw = 512; ch = 512;
-	c.width = cw; c.height = ch;
+	cw = window.innerWidth; ch = window.innerHeight;
 
-/*	function canvas_resize(){
+	size = cw > ch ? ch:cw;
+	c.width = size; c.height = size;
+
+	/*function canvas_resize(){
 		var windowInnerWidth=window.innerWidth;
 		var windowInnerHeight=window.innerHeight;
 
@@ -102,8 +104,8 @@ function checkChange(e){
 
 // mouse
 function mouseMove(e){
-	mx = e.offsetX / cw;
-	my = e.offsetY / ch;
+	mx = e.offsetX / size;
+	my = e.offsetY / size;
 }
 
 // レンダリングを行う関数
