@@ -4,7 +4,7 @@
 }
 
 body {
-  /*background-color: black;*/
+  background-color: black;
 }
 /*
 .header{
@@ -30,15 +30,11 @@ body {
   height:300px;
 }
 
-.canvas-wrapper {
-    position: relative;
-}
+#canvas{
+  position: absolute;/*絶対配置*/
 
-.canvas-wrapper canvas {
-    position: absolute;
-    top: 0;
-    bottom: auto;
-    left: 0;
-    right: 0;
-    margin: auto;
+  box-shadow: 0px 0px 0px 1px gray;
+  top: 10%;
+  left: 35%;
+
 }

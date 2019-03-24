@@ -23,20 +23,21 @@ var tempTime = 0.0;
 var fps = 1000 / 30;
 var uniLocation = new Array();
 
+
 window.addEventListener('load', function() {
 
 // onload
 //window.onload = function(){
 	// canvas エレメントを取得
-	c = document.getElementById('canvas');
+	c = document.getElementById('background');
 
 	// canvas サイズ
 	cw = window.innerWidth; ch = window.innerHeight;
 
-	size = cw > ch ? ch:cw;
-	c.width = size; c.height = size;
+	//size = cw > ch ? ch:cw;
+	c.width = cw; c.height = ch;
 
-	/*function canvas_resize(){
+	function canvas_resize(){
 		var windowInnerWidth=window.innerWidth;
 		var windowInnerHeight=window.innerHeight;
 
@@ -46,7 +47,7 @@ window.addEventListener('load', function() {
 
 	window.addEventListener('resize',canvas_resize,false);
 
-	canvas_resize();*/
+	//canvas_resize();
 
 	// エレメントを取得
 	eCheck = document.getElementById('check');
@@ -59,7 +60,7 @@ window.addEventListener('load', function() {
 	gl = c.getContext('webgl') || c.getContext('experimental-webgl');
 
 	// シェーダ周りの初期化
-	var prg = create_program(create_shader('vs'), create_shader('fs'));
+	var prg = create_program(create_shader('bvs'), create_shader('bfs'));
 	run = (prg != null); if(!run){eCheck.checked = false;}
 	uniLocation[0] = gl.getUniformLocation(prg, 'time');
 	uniLocation[1] = gl.getUniformLocation(prg, 'mouse');
@@ -91,6 +92,7 @@ window.addEventListener('load', function() {
 
 	// レンダリング関数呼出
 	render();
+
 })
 
 // checkbox

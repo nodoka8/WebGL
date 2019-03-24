@@ -16,27 +16,23 @@
 // ============================================================================
 
 // global
-var c, cw, ch, mx, my, gl, run, eCheck,size;
+var c, cw, ch, mx, my, gl, run, eCheck;
 var startTime;
 var time = 0.0;
 var tempTime = 0.0;
 var fps = 1000 / 30;
 var uniLocation = new Array();
 
-window.addEventListener('load', function() {
-
 // onload
-//window.onload = function(){
+window.onload = function(){
 	// canvas エレメントを取得
 	c = document.getElementById('canvas');
 
 	// canvas サイズ
-	cw = window.innerWidth; ch = window.innerHeight;
+	cw = 512; ch = 512;
+	c.width = cw; c.height = ch;
 
-	size = cw > ch ? ch:cw;
-	c.width = size; c.height = size;
-
-	/*function canvas_resize(){
+/*	function canvas_resize(){
 		var windowInnerWidth=window.innerWidth;
 		var windowInnerHeight=window.innerHeight;
 
@@ -91,7 +87,7 @@ window.addEventListener('load', function() {
 
 	// レンダリング関数呼出
 	render();
-})
+};
 
 // checkbox
 function checkChange(e){
@@ -106,8 +102,8 @@ function checkChange(e){
 
 // mouse
 function mouseMove(e){
-	mx = e.offsetX / size;
-	my = e.offsetY / size;
+	mx = e.offsetX / cw;
+	my = e.offsetY / ch;
 }
 
 // レンダリングを行う関数
