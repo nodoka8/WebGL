@@ -3,14 +3,10 @@
   padding: 0px;
 }
 
-body {
-  /*background-color: black;*/
-}
-/*
 .header{
   position: relative;
   width: auto;
-}*/
+}
 .header .title {
 /*  position: absolute;/*絶対配置*/
   font-family: serif;
@@ -30,15 +26,7 @@ body {
   height:300px;
 }
 
-.canvas-wrapper {
-    position: relative;
-}
-
-.canvas-wrapper canvas {
-    position: absolute;
-    top: 0;
-    bottom: auto;
-    left: 0;
-    right: 0;
-    margin: auto;
+#canvas{
+  width: 100%;
+  height: 100%;
 }
