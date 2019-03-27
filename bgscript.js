@@ -91,7 +91,7 @@ window.addEventListener('load', function() {
 	startTime = new Date().getTime();
 
 	// レンダリング関数呼出
-	render();
+	render2();
 
 })
 
@@ -100,7 +100,7 @@ function checkChange(e){
 	run = e.currentTarget.checked;
 	if(run){
 		startTime = new Date().getTime();
-		render();
+		render2();
 	}else{
 		tempTime += time;
 	}
@@ -113,7 +113,9 @@ function mouseMove(e){
 }
 
 // レンダリングを行う関数
-function render(){
+function render2(){
+
+
 	// フラグチェック
 	if(!run){return;}
 
@@ -132,8 +134,11 @@ function render(){
 	gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
 	gl.flush();
 
+	console.log(time);
+
+
 	// 再帰
-	setTimeout(render, fps);
+	setTimeout(render2, fps);
 }
 
 // シェーダを生成する関数
