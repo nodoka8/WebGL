@@ -34,9 +34,10 @@ window.addEventListener('load', function() {
 	cw = window.innerWidth; ch = window.innerHeight;
 
 	size = cw > ch ? ch:cw;
+	size *= 1.0;
 	c.width = size; c.height = size;
 
-	/*function canvas_resize(){
+	function canvas_resize(){
 		var windowInnerWidth=window.innerWidth;
 		var windowInnerHeight=window.innerHeight;
 
@@ -46,7 +47,7 @@ window.addEventListener('load', function() {
 
 	window.addEventListener('resize',canvas_resize,false);
 
-	canvas_resize();*/
+	canvas_resize();
 
 	// エレメントを取得
 	eCheck = document.getElementById('check');

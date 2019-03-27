@@ -28,14 +28,13 @@
       uniform vec2  resolution;
 
       const float PI = 3.14159265;
-      const float angle = 90.0;
+      const float angle = 60.0;
       const float fov = angle * 0.5 * PI / 180.0;
       const float sphereSize = 0.5;
-      const vec3 lightDir = vec3(0.0, 1.0, 1.0);
-      // camera
-      vec3 cPos = vec3(0.0,  0.0,  2.0);
-      vec3 cDir = vec3(0.0,  0.0, -1.0);
-      vec3 cUp  = vec3(0.0,  1.0,  0.0);
+      const vec3 lightDir = vec3(0.0, 1.0, 0.0);
+      const vec3 cPos = vec3(0.0, 1.0, 2.0);
+      const vec3 cDir = vec3(0.0, -0.707, -0.707);
+      const vec3 cUp  = vec3(0.0,  0.707, -0.707);
 
       // rotate
       vec3 rotate(vec3 p, float angle, vec3 axis){
@@ -66,75 +65,27 @@
           return length(p)-s;
       }
 
-      float sdEllipsoid( in vec3 p, in vec3 r )
+      float sdHexPrism( vec3 p, vec2 h )
       {
-          float k0 = length(p/r);
-          float k1 = length(p/(r*r));
-          return k0*(k0-1.0)/k1;
+          const vec3 k = vec3(-0.8660254, 0.5, 0.57735);
+          p = abs(p);
+          p.xy -= 2.0*min(dot(k.xy, p.xy), 0.0)*k.xy;
+          vec2 d = vec2(
+             length(p.xy-vec2(clamp(p.x,-k.z*h.x,k.z*h.x), h.x))*sign(p.y-h.x),
+             p.z-h.y );
+          return min(max(d.x,d.y),0.0) + length(max(d,0.0));
       }
-
-      float sdRoundedCylinder( vec3 p, float ra, float rb, float h )
-      {
-          vec2 d = vec2( length(p.xz)-2.0*ra+rb, abs(p.y) - h );
-          return min(max(d.x,d.y),0.0) + length(max(d,0.0)) - rb;
-      }
-
-      float sdBox( vec3 p, vec3 b )
-      {
-          vec3 d = abs(p) - b;
-          return length(max(d,0.0))
-                 + min(max(d.x,max(d.y,d.z)),0.0); // remove this line for an only partially signed sdf
-      }
-
-      float anpanHead(vec3 p, float size){
-          return sdEllipsoid(p, vec3(size,size*0.95,size*0.8));
-      }
-
-
-      float anpanEye(vec3 p, float size){
-          float d1 = sdEllipsoid(p+vec3(0.2*size,-0.3*size,-0.75*size), vec3(size/12.0,size*0.95/10.0,size*0.5/10.0));
-          float d2 = sdEllipsoid(p+vec3(-0.2*size,-0.3*size,-0.75*size), vec3(size/12.0,size*0.95/10.0,size*0.5/10.0));
-          return min(d1,d2);
-      }
-
-      float anpanNose(vec3 p, float size){
-          float d1 = sdEllipsoid(p+vec3(0.0,0.0,-0.8 *size), vec3(size/4.8,size*0.95/5.0,size*0.5/5.0));
-          float d2 = sdEllipsoid(p+vec3(0.33*size,0.03*size,-0.73*size), vec3(size/5.5,size*0.95/5.5,size*0.5/5.5));
-          float d3 = sdEllipsoid(p+vec3(-0.33*size,0.03*size,-0.73*size), vec3(size/5.5,size*0.95/5.5,size*0.5/5.5));
-          return min(d1,min(d2,min(d3,anpanEye(p, size))));
-      }
-
-
-      float anpanMouth(vec3 p, float size){
-          float d1 = sdRoundedCylinder(rotate(p+vec3(0.0,0.15*size,-0.8*size),radians(90.0),vec3(1.0,0.0,0.0)), 0.15*size, 0.2*size, 0.1*size );
-          float d2 = sdBox(p, vec3(0.3*size,0.2*size,1.0*size));
-          return max(d1,-d2);
-      }
-
-      float anpanEyeblowLeft(vec3 p, float size){
-          float d1 = sdEllipsoid(p+vec3(0.2*size,-0.34*size,-0.75*size), vec3(size/8.0,size*0.95/6.0,size*0.5/10.0));
-          float d2 = sdEllipsoid(p+vec3(0.2*size,-0.34*size,-0.75*size), vec3(size/8.5,size*0.95/6.5,size*0.5/8.0));
-          float d3 = sdSphere(p+vec3(0.17*size,-0.28*size,-0.75*size), 0.14*size);
-          return max(max(d1,-d2),-d3);
-      }
-
-      float anpanEyeblowRight(vec3 p, float size){
-          float d1 = sdEllipsoid(p+vec3(-0.2*size,-0.34*size,-0.75*size), vec3(size/8.0,size*0.95/6.0,size*0.5/10.0));
-          float d2 = sdEllipsoid(p+vec3(-0.2*size,-0.34*size,-0.75*size), vec3(size/8.5,size*0.95/6.5,size*0.5/8.0));
-          float d3 = sdSphere(p+vec3(-0.17*size,-0.28*size,-0.75*size), 0.14*size);
-          return max(max(d1,-d2),-d3);
-      }
-
-      float anpanman(vec3 p, float size){
-          return min(max(min(anpanHead(p, size),min(anpanEyeblowLeft(p,size),anpanEyeblowRight(p, size))),-anpanMouth(p, size)),anpanNose(p, size));
-      }
-
-      float size = 1.0;
 
       float distFunc(vec3 p){
-        p = trans(p);
-        p = rotate(p, radians(time * 80.0), vec3(0.0, 0.5, 0.0));
-        return anpanman(p, size);
+        float size = 1.0;
+      //  p = rotate(p, radians(time * 10.0), vec3(1.0, 0.5, 0.0));
+        float d1 = sdSphere(p,size);
+        float d2 = sdHexPrism(p, vec2(size * 0.2,1.0));
+        float d3 = sdHexPrism(rotate(p,radians(23.0),vec3(0.5,0.9,0.0)), vec2(size * 0.2,1.0));
+        float d4 = sdHexPrism(rotate(p,radians(40.0),vec3(1.0,0.4,0.0)), vec2(size * 0.2,1.0));
+
+
+        return max(d1,max(-d2,max(-d3,-d4)));
       }
 
 
@@ -163,26 +114,6 @@
           return 1.0 - shadowCoef + r * shadowCoef;
       }
 
-      vec3 getColor(vec3 pos){
-        //  pos = offset(pos);
-        //  pos.y += sin(time*pos.z);
-          pos = trans(pos);
-          pos = rotate(pos, radians(time * 80.0), vec3(0.0, 0.5, 0.0));
-
-
-          if(max(anpanHead(pos,size), anpanMouth(pos, size)) < 0.001) return vec3(143.0/255.0, 54.0/255.0, 67.0/255.0);
-          if(anpanHead(pos,size) < 0.001) return vec3(235.0/255.0, 151.0/255.0, 98.0/255.0);
-
-          if(anpanEye(pos,size) < 0.001) return vec3(0.0, 0.0, 0.0);
-
-          if(anpanEyeblowLeft(pos,size) < 0.001) return vec3(0.0, 0.0, 0.0);
-          if(anpanEyeblowRight(pos,size) < 0.001) return vec3(0.0, 0.0, 0.0);
-
-          if(anpanNose(pos,size) < 0.001) return vec3(0.8, 0.0, 0.0);
-
-          return vec3(1.0, 1.0, 1.0);
-      }
-
 
       void main(void){
       //    lightDir.x *= sin(time * 2.0);
@@ -194,32 +125,50 @@
           // camera and ray
           vec3 cSide = cross(cDir, cUp);
           float targetDepth = 1.0;
-        //  vec3 ray = normalize(cSide * p.x + cUp * p.y + cDir * targetDepth);
-
-          vec3 ray = normalize(vec3(sin(fov) * p.x, sin(fov) * p.y, -cos(fov)));
-
-
+          vec3 ray = normalize(cSide * p.x + cUp * p.y + cDir * targetDepth);
 
           // marching loop
-          float distance = 0.0;
-          float rLen = 0.0;
-          vec3  rPos = cPos;
-          for(int i = 0; i < 64; i++){
-              distance = distFunc(rPos);
-              rLen += distance;
-              rPos = cPos + ray * rLen;
+          float tmp, dist;
+          tmp = 0.0;
+          vec3 dPos = cPos;
+          for(int i = 0; i < 256; i++){
+              dist = distFunc(dPos);
+              if(dist < 0.001){break;}
+              tmp += dist;
+              dPos = cPos + tmp * ray;
           }
 
+          // light offset
+          vec3 light = normalize(lightDir + vec3(sin(time), 0.0, 0.0));
+
           // hit check
-          if(abs(distance) < 0.001){
-              vec3 normal = genNormal(rPos);
-              vec3 color = getColor(rPos);
-              float diff = clamp(dot(lightDir, normal), 0.1, 1.0);
-              gl_FragColor = vec4(vec3(diff) * color, 1.0);
+          vec3 color;
+          float shadow = 1.0;
+          if(abs(dist) < 0.001){
+              // generate normal
+              vec3 normal = genNormal(dPos);
+
+              // light
+              vec3 halfLE = normalize(light - ray);
+              float diff = clamp(dot(light, normal), 0.1, 1.0);
+              float spec = pow(clamp(dot(halfLE, normal), 0.0, 1.0), 50.0);
+
+              // generate shadow
+              shadow = genShadow(dPos + normal * 0.001, light);
+
+              // generate tile pattern
+            /*  float u = 1.0 - floor(mod(dPos.x, 2.0));
+              float v = 1.0 - floor(mod(dPos.z, 2.0));
+              if((u == 1.0 && v < 1.0) || (u < 1.0 && v == 1.0)){
+                  diff *= 0.7;
+              }*/
+
+              color = vec3(1.0, 1.0, 1.0) * diff + vec3(spec);
           }else{
-              gl_FragColor = vec4(vec3(0.0), 1.0);
+              color = vec3(0.0);
           }
-        }
+          gl_FragColor = vec4(color * max(0.5, shadow), 1.0);
+      }
 
     </script>
 
